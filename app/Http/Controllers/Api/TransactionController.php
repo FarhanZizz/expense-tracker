@@ -56,7 +56,7 @@ class TransactionController extends Controller
 
     public function destroy($id)
     {
-        $transaction = Transaction::findOrFail($id);
+        $transaction = Transaction::with('source')->findOrFail($id);
 
         // reverse the balance
         $source = PaymentSource::find($transaction->source_id);
