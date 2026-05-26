@@ -36,16 +36,30 @@ class TelegramController extends Controller
 
     private function parseWithGemini($text)
 {
-    $systemPrompt = 'You are an expense tracking assistant. User sends messages in Bangla, English, or mixed Banglish. Extract info and reply ONLY with valid JSON, no extra text, no markdown backticks.
-    {
-      "intent": "add" or "fetch",
-      "type": "in" or "out",
-      "amount": number or null,
-      "source": "bkash" or "bank" or "cash" or null,
-      "category": guess from context or null,
-      "period": "today" or "this_month" or "last_month" or null,
-      "note": any extra detail or null
-    }';
+    $systemPrompt = 'You are an expense tracking assistant. User sends messages in Bangla, English, or mixed Banglish.
+
+Source detection rules:
+- "cash", "নগদ টাকা", "হাতে", "pocket" = cash
+- "bkash", "বিকাশ", "bKash" = bkash
+- "bank", "ব্যাংক", "card", "atm" = bank
+- "nagad", "নগদ" = nagad
+- "rocket", "রকেট", "dbbl" = rocket  
+- "card", "debit", "credit", "visa" = card
+- If no source mentioned, default to "cash"
+
+Extract info and reply ONLY with valid JSON, no extra text, no markdown.
+{
+  "intent": "add" or "fetch",
+  "type": "in" or "out",
+  "amount": number or null,
+  "source": "bkash" or "bank" or "cash",
+  "category": guess from context or null,
+  "period": "today" or "this_month" or "last_month" or null,
+  "note": any extra detail or null
+}
+If intent is "add" and no source mentioned, default source to "cash".
+If intent is "fetch" and no source mentioned, set source to null.
+If user asking for info, set intent to "fetch".';
 
     $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
@@ -107,9 +121,23 @@ class TelegramController extends Controller
         $sources = PaymentSource::all();
         $reply   = "Summary:\n";
 
-        foreach ($sources as $source) {
-            $reply .= "\n{$source->name}: {$source->balance} taka";
-        }
+        if (!empty($parsed['source'])) {
+    $source = PaymentSource::whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($parsed['source']) . '%'])->first();
+    if ($source) {
+        $totalIn  = Transaction::where('source_id', $source->id)->where('type', 'in')->sum('amount');
+        $totalOut = Transaction::where('source_id', $source->id)->where('type', 'out')->sum('amount');
+        return "{$source->name} Summary:\nBalance: {$source->balance} taka\nTotal In: {$totalIn} taka\nTotal Out: {$totalOut} taka";
+    }
+}
+
+   foreach ($sources as $source) {
+    $totalIn  = Transaction::where('source_id', $source->id)->where('type', 'in')->sum('amount');
+    $totalOut = Transaction::where('source_id', $source->id)->where('type', 'out')->sum('amount');
+    
+    if ($totalIn > 0 || $totalOut > 0) {
+        $reply .= "\n{$source->name}: {$source->balance} taka (In: {$totalIn} | Out: {$totalOut})";
+    }
+}
 
         $totalIn  = Transaction::where('type', 'in')->sum('amount');
         $totalOut = Transaction::where('type', 'out')->sum('amount');
