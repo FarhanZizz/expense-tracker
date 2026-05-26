@@ -1,0 +1,211 @@
+{
+    "info": {
+        "name": "Expense Tracker API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://127.0.0.1:8000/api"
+        }
+    ],
+    "item": [
+        {
+            "name": "Sources",
+            "item": [
+                {
+                    "name": "Get All Sources",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/sources",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                },
+                {
+                    "name": "Add Source",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/sources",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"bKash\",\n  \"type\": \"mfs\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Source",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{base_url}}/sources/1",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "item": [
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/categories",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                },
+                {
+                    "name": "Add Category",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/categories",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Food\",\n  \"type\": \"out\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Transactions",
+            "item": [
+                {
+                    "name": "Get All Transactions",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/transactions",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Transactions by Source",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/transactions?source_id=1",
+                            "query": [{ "key": "source_id", "value": "1" }]
+                        },
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Transactions by Month",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/transactions?month=5&year=2026",
+                            "query": [
+                                { "key": "month", "value": "5" },
+                                { "key": "year", "value": "2026" }
+                            ]
+                        },
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                },
+                {
+                    "name": "Add Income",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/transactions",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"source_id\": 1,\n  \"type\": \"in\",\n  \"amount\": 5000,\n  \"date\": \"2026-05-26\",\n  \"note\": \"salary\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Add Expense",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{base_url}}/transactions",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"source_id\": 1,\n  \"type\": \"out\",\n  \"amount\": 500,\n  \"date\": \"2026-05-26\",\n  \"note\": \"groceries\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Transaction",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{base_url}}/transactions/1",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Summary",
+            "item": [
+                {
+                    "name": "Overall Summary",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{base_url}}/summary",
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                },
+                {
+                    "name": "Monthly Summary",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/summary/monthly?month=5&year=2026",
+                            "query": [
+                                { "key": "month", "value": "5" },
+                                { "key": "year", "value": "2026" }
+                            ]
+                        },
+                        "header": [
+                            { "key": "Accept", "value": "application/json" }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
