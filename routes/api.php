@@ -13,3 +13,8 @@ Route::apiResource('categories', CategoryController::class);
 Route::apiResource('transactions', TransactionController::class);
 Route::get('summary', [SummaryController::class, 'index']);
 Route::get('summary/monthly', [SummaryController::class, 'monthly']);
+
+Route::get('reset-db', function () {
+    \Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true]);
+    return response()->json(['message' => 'Done']);
+});
